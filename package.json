@@ -9,7 +9,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MaxToyberman/react-native-fingerprint-change"
+    "url": "git+https://github.com/maysoftinc/react-native-fingerprint-change.git"
   },
   "keywords": [
     "react-native"
@@ -18,5 +18,8 @@
   "license": "MIT",
   "peerDependencies": {
     "react-native": "^0.41.2"
+  },
+  "bugs": {
+    "url": "https://github.com/MaxToyberman/react-native-fingerprint-change/issues"
   }
 }

@@ -5,8 +5,9 @@ import android.content.SharedPreferences;
 import android.hardware.fingerprint.FingerprintManager;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -41,12 +42,12 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
      * @throws ClassNotFoundException
      */
     @RequiresApi(api = Build.VERSION_CODES.M)
-    private int getFingerprintInfo(Context context) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    private String getFingerprintInfo(Context context) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, ClassNotFoundException {
         FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
         Method method = FingerprintManager.class.getDeclaredMethod("getEnrolledFingerprints");
         Object obj = method.invoke(fingerprintManager);
 
-        int fingerprintsIdSum = 0;
+        String fingerprintsId = "";
         if (obj != null) {
             Class<?> clazz = Class.forName("android.hardware.fingerprint.Fingerprint");
             Method getFingerId = clazz.getDeclaredMethod("getFingerId");
@@ -54,13 +55,13 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
             for (int i = 0; i < ((List) obj).size(); i++) {
                 Object item = ((List) obj).get(i);
                 if (item != null) {
-                    fingerprintsIdSum += (int) getFingerId.invoke(item);
+                    fingerprintsId += "#" + getFingerId.invoke(item);
                 }
             }
 
         }
 
-        return fingerprintsIdSum;
+        return fingerprintsId;
 
     }
 
@@ -76,13 +77,17 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
 
         try {
             // get current fingers id sum
-            int fingersId = getFingerprintInfo(this.reactContext);
+            String fingersId = getFingerprintInfo(this.reactContext);
             // last saved key
-            int lastKeyId = spref.getInt(LAST_KEY_ID, -1);
-            if (lastKeyId != fingersId && lastKeyId!= -1) {
-                spref.edit().putInt(LAST_KEY_ID, fingersId).apply();
+            String lastKeyId = spref.getString(LAST_KEY_ID, null);
+            if (lastKeyId == null) {
+                spref.edit().putString(LAST_KEY_ID, fingersId).apply();
+                successCallback.invoke(false);
+                return;
+            }
+            if (!lastKeyId.equals(fingersId)) {
+                spref.edit().putString(LAST_KEY_ID, fingersId).apply();
                 successCallback.invoke(true);
-
             } else {
                 successCallback.invoke(false);
             }
