@@ -81,7 +81,7 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
             // last saved key
             String lastKeyId = spref.getString(LAST_KEY_ID, null);
             
-            if (!lastKeyId.equals(fingersId) && lastKeyId != null) {
+            if (lastKeyId != null && !lastKeyId.equals(fingersId)) {
                 successCallback.invoke(true);
             } else {
                 successCallback.invoke(false);
