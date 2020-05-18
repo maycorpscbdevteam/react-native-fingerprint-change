@@ -80,15 +80,27 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
             String fingersId = getFingerprintInfo(this.reactContext);
             // last saved key
             String lastKeyId = spref.getString(LAST_KEY_ID, null);
-            
+
             if (lastKeyId != null && !lastKeyId.equals(fingersId)) {
                 successCallback.invoke(true);
             } else {
                 successCallback.invoke(false);
             }
-            spref.edit().putString(LAST_KEY_ID, fingersId).apply();
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             successCallback.invoke(false);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @ReactMethod
+    public void init(Callback errorCallback) {
+        try {
+            // get current fingers id sum
+            String fingersId = getFingerprintInfo(this.reactContext);
+            // last saved key
+            spref.edit().putString(LAST_KEY_ID, fingersId).apply();
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+            errorCallback.invoke(true);
         }
     }
 
