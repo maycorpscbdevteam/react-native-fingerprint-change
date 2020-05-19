@@ -47,15 +47,13 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
         Method method = FingerprintManager.class.getDeclaredMethod("getEnrolledFingerprints");
         Object obj = method.invoke(fingerprintManager);
         int fingerprintsSum = 0;
+
         if (obj != null) {
-            Class<?> clazz = Class.forName("android.hardware.fingerprint.Fingerprint");
-            Method getFingerId = null;
-            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-                getFingerId = clazz.getDeclaredMethod("getFingerId");
-            }
-            if (getFingerId == null) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
                 fingerprintsSum = ((List) obj).size();
             } else {
+                Class<?> clazz = Class.forName("android.hardware.fingerprint.Fingerprint");
+                Method getFingerId = clazz.getDeclaredMethod("getFingerId");
                 for (int i = 0; i < ((List) obj).size(); i++) {
                     Object item = ((List) obj).get(i);
                     if (item != null) {
