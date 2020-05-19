@@ -46,23 +46,25 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
         FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
         Method method = FingerprintManager.class.getDeclaredMethod("getEnrolledFingerprints");
         Object obj = method.invoke(fingerprintManager);
-
         String fingerprintsId = "";
         if (obj != null) {
             Class<?> clazz = Class.forName("android.hardware.fingerprint.Fingerprint");
-            Method getFingerId = clazz.getDeclaredMethod("getFingerId");
-
+            Method getFingerId = null;
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                getFingerId = clazz.getDeclaredMethod("getFingerId");
+            }
             for (int i = 0; i < ((List) obj).size(); i++) {
                 Object item = ((List) obj).get(i);
                 if (item != null) {
-                    fingerprintsId += "#" + getFingerId.invoke(item);
+                    if (getFingerId != null) {
+                        fingerprintsId += "#" + getFingerId.invoke(item);
+                    } else {
+                        fingerprintsId += "#" + (i + 1);
+                    }
                 }
             }
-
         }
-
         return fingerprintsId;
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -109,11 +111,9 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             //Fingerprint API only available on from Android 6.0 (M)
             FingerprintManager fingerprintManager = (FingerprintManager) mContext.getSystemService(Context.FINGERPRINT_SERVICE);
-
             if (fingerprintManager == null) {
                 return false;
             }
-
             return fingerprintManager.isHardwareDetected();
         } else {
             // Supporting devices with SDK < 23
@@ -122,10 +122,8 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
             if (fingerprintManager == null) {
                 return false;
             }
-
             return fingerprintManager.isHardwareDetected();
         }
-
     }
 
     @Override
