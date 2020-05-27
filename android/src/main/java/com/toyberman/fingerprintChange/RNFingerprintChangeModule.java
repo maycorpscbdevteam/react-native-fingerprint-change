@@ -80,7 +80,7 @@ public class RNFingerprintChangeModule extends ReactContextBaseJavaModule {
             int fingersSum = getFingerprintInfo(this.reactContext);
             // last saved key
             int lastKeySum = spref.getInt(LAST_KEY_ID, -1);
-            if (lastKeySum != -1 && lastKeySum != fingersSum) {
+            if ((lastKeySum != fingersSum) && lastKeySum != -1) {
                 successCallback.invoke(true);
             } else {
                 successCallback.invoke(false);
